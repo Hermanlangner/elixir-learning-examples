@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@alpinejs/collapse": "^3.13.8",
+    "alpinejs": "^3.13.3",
+    "chart.js": "^4.4.8",
+    "mermaid": "^10.9.0",
+    "sortablejs": "^1.15.2"
+  }
+}

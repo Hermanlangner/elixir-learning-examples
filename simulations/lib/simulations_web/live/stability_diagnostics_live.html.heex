@@ -1,0 +1,80 @@
+<div>
+  <div class={@theme}>
+    <main class="p-6 dark:bg-gray-900 min-h-screen">
+      <header class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Stability Diagnostics
+        </h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">
+          This page contains tools for testing and diagnosing system stability.
+        </p>
+      </header>
+
+      <div class="mt-6 space-y-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Error Simulation</h2>
+          <p class="mb-4 text-gray-600 dark:text-gray-400">
+            Use these buttons to test how the system handles various error conditions.
+          </p>
+
+          <div class="flex space-x-4 mt-4">
+            <button id="crash-button" phx-hook="ErrorSimulator" data-error-type="crash"
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors">
+              Simulate Process Crash
+            </button>
+
+            <button id="session-button" phx-hook="ErrorSimulator" data-error-type="session"
+              class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 transition-colors">
+              Simulate Session Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Toast Notifications</h2>
+          <p class="mb-4 text-gray-600 dark:text-gray-400">
+            Test different types of toast notifications.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button id="info-toast-btn" phx-click={JS.dispatch("simulations:toast", %{detail:
+              %{message: "This is an information message" , type: "info" }})}
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors">
+              Info Toast
+            </button>
+
+            <button id="success-toast-btn" phx-click={JS.dispatch("simulations:toast", %{detail:
+              %{message: "This is a success message" , type: "success" }})}
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors">
+              Success Toast
+            </button>
+
+            <button id="warning-toast-btn" phx-click={JS.dispatch("simulations:toast", %{detail:
+              %{message: "This is a warning message" , type: "warning" }})}
+              class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 transition-colors">
+              Warning Toast
+            </button>
+
+            <button id="error-toast-btn" phx-click={JS.dispatch("simulations:toast", %{detail:
+              %{message: "This is an error message" , type: "error" }})}
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors">
+              Error Toast
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Theme Testing</h2>
+          <p class="mb-4 text-gray-600 dark:text-gray-400">
+            Test theme toggling functionality.
+          </p>
+
+          <button phx-click="toggle_theme"
+            class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-colors">
+            Toggle Theme (<%= @theme %>)
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

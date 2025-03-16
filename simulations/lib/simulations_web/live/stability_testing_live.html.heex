@@ -1,0 +1,275 @@
+<div>
+  <div class={@theme}>
+    <main class="p-6 dark:bg-gray-900 min-h-screen">
+      <header class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Stability Testing
+        </h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">
+          Test various error conditions and monitor the results in the log below.
+        </p>
+      </header>
+
+      <div class="flex flex-col md:flex-row gap-6">
+        <!-- Left Column: Controls -->
+        <div class="w-full md:w-1/3">
+          <!-- Error Simulation Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Error Simulation</h2>
+            <p class="mb-4 text-gray-600 dark:text-gray-400">
+              Use these buttons to test error handling and system stability.
+            </p>
+
+            <div class="space-y-4">
+              <button phx-click="simulate_crash"
+                class="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors">
+                Simulate Process Crash
+              </button>
+
+              <button phx-click="simulate_session_refresh"
+                class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors">
+                Simulate Session Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Chaos Engineering Controls -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Chaos Engineering</h2>
+            <p class="mb-4 text-gray-600 dark:text-gray-400">
+              Enable chaos mode to simulate random system failures at varying levels of intensity.
+            </p>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Chaos Intensity: <%= @chaos_intensity %>
+              </label>
+              <input type="range" name="intensity" min="1" max="10" value={@chaos_intensity}
+                phx-change="update_chaos_intensity"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+              <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>Low</span>
+                <span>Medium</span>
+                <span>High</span>
+              </div>
+            </div>
+
+
+            <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Manual Triggers</h3>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button phx-click="trigger_immediate_chaos" phx-value-type="division_by_zero"
+                  class="px-2 py-1 bg-amber-500 text-white text-xs rounded hover:bg-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:ring-opacity-50 transition-colors">
+                  Division by Zero
+                </button>
+
+                <button phx-click="trigger_immediate_chaos" phx-value-type="match_error"
+                  class="px-2 py-1 bg-amber-500 text-white text-xs rounded hover:bg-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:ring-opacity-50 transition-colors">
+                  Match Error
+                </button>
+
+                <button phx-click="trigger_immediate_chaos" phx-value-type="function_clause"
+                  class="px-2 py-1 bg-amber-500 text-white text-xs rounded hover:bg-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:ring-opacity-50 transition-colors">
+                  Function Clause
+                </button>
+
+                <button phx-click="trigger_immediate_chaos" phx-value-type="badarg"
+                  class="px-2 py-1 bg-amber-500 text-white text-xs rounded hover:bg-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:ring-opacity-50 transition-colors">
+                  Bad Argument
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Theme Controls -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Theme Control</h2>
+            <p class="mb-4 text-gray-600 dark:text-gray-400">
+              Toggle between light and dark mode.
+            </p>
+
+            <button phx-click="toggle_theme"
+              class="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-colors">
+              Toggle Theme (<%= @theme %>)
+            </button>
+          </div>
+
+          <!-- Log Controls -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Log Controls</h2>
+
+            <button phx-click="clear_logs"
+              class="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition-colors">
+              Clear Logs
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Log Display -->
+        <div class="w-full md:w-2/3">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">System Log</h2>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                <%= length(@logs) %> entries
+              </span>
+            </div>
+
+            <!-- Log Container with Fixed Height and Scrolling -->
+            <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 h-[600px] overflow-y-auto font-mono text-sm">
+              <%= if Enum.empty?(@logs) do %>
+                <div class="flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                  <p>No log entries yet. Use the buttons on the left to generate logs.</p>
+                </div>
+                <% else %>
+                  <div class="space-y-2">
+                    <%= for log <- @logs do %>
+                      <div class={if log.type=="error" , do: "text-red-600 dark:text-red-400" ,
+                        else: "text-green-600 dark:text-green-400" }>
+                        <%= log.message %>
+                      </div>
+                      <% end %>
+                  </div>
+                  <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Floating Bug Button and Panel -->
+    <div id="debug-panel-container" class={if @debug_enabled, do: "fixed bottom-4 right-4 z-50 flex items-end" ,
+      else: "hidden" } phx-hook="DebugConsoleHook">
+      <!-- Sliding Panel (appears when button is clicked) -->
+      <div
+        class={ "mr-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden debug-panel-transition "
+        <>
+        if @panel_open, do: "w-80 h-96 opacity-100", else: "w-0 h-0 opacity-0"
+        }
+        >
+        <div class="p-4 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-semibold text-gray-800 dark:text-gray-200">Debug Console</h3>
+            <span class="text-xs text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+              <%= length(@logs) %> entries
+            </span>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="flex mb-2 border-b border-gray-200 dark:border-gray-700">
+            <button phx-click="set_log_filter" phx-value-filter="all"
+              class={ "px-3 py-1.5 text-xs font-medium rounded-t-md border-b-2 focus:outline-none " <>
+              if @log_filter == "all",
+              do: "border-indigo-500 text-indigo-600 dark:text-indigo-400",
+              else: "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }
+              >
+              All
+            </button>
+            <button phx-click="set_log_filter" phx-value-filter="error"
+              class={ "px-3 py-1.5 text-xs font-medium rounded-t-md border-b-2 focus:outline-none " <>
+              if @log_filter == "error",
+              do: "border-red-500 text-red-600 dark:text-red-400",
+              else: "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }
+              >
+              Errors
+            </button>
+            <button phx-click="set_log_filter" phx-value-filter="warning"
+              class={ "px-3 py-1.5 text-xs font-medium rounded-t-md border-b-2 focus:outline-none " <>
+              if @log_filter == "warning",
+              do: "border-amber-500 text-amber-600 dark:text-amber-400",
+              else: "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }
+              >
+              Warnings
+            </button>
+            <button phx-click="set_log_filter" phx-value-filter="success"
+              class={ "px-3 py-1.5 text-xs font-medium rounded-t-md border-b-2 focus:outline-none " <>
+              if @log_filter == "success",
+              do: "border-green-500 text-green-600 dark:text-green-400",
+              else: "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }
+              >
+              Success
+            </button>
+            <button phx-click="set_log_filter" phx-value-filter="info"
+              class={ "px-3 py-1.5 text-xs font-medium rounded-t-md border-b-2 focus:outline-none " <>
+              if @log_filter == "info",
+              do: "border-blue-500 text-blue-600 dark:text-blue-400",
+              else: "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }
+              >
+              Info
+            </button>
+          </div>
+
+          <!-- Compact Log Display -->
+          <div class="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 rounded p-2 text-xs font-mono">
+            <% filtered_logs=case @log_filter do "error" -> Enum.filter(@logs, fn log -> log.type == "error" end)
+              "warning" -> Enum.filter(@logs, fn log -> log.type == "warning" end)
+              "success" -> Enum.filter(@logs, fn log -> log.type == "success" end)
+              "info" -> Enum.filter(@logs, fn log -> log.type == "info" end)
+              _ -> @logs
+              end
+              %>
+              <%= if Enum.empty?(filtered_logs) do %>
+                <div class="flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                  <p>No <%= if @log_filter !="all" , do: @log_filter <> " " %>logs yet.</p>
+                </div>
+                <% else %>
+                  <div class="space-y-1">
+                    <%= for log <- filtered_logs do %>
+                      <div class={ case log.type do "error" -> "text-red-600 dark:text-red-400"
+                        "warning" -> "text-amber-600 dark:text-amber-400"
+                        "success" -> "text-green-600 dark:text-green-400"
+                        _ -> "text-blue-600 dark:text-blue-400"
+                        end
+                        }>
+                        <%= log.message %>
+                      </div>
+                      <% end %>
+                  </div>
+                  <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bug Button with Badge -->
+      <div class="relative">
+        <!-- Badge Counter (only shown when panel is closed and logs exist) -->
+        <%= if not @panel_open and length(@logs)> 0 do %>
+          <span
+            class="absolute -top-2 -right-2 flex items-center justify-center bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 z-10 shadow-sm debug-panel-transition">
+            <%= length(@logs) %>
+          </span>
+          <% end %>
+
+            <button phx-click="toggle_floating_panel"
+              class={ "flex items-center justify-center w-14 h-14 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 debug-panel-transition "
+              <>
+              if @panel_open,
+              do: "bg-red-600 hover:bg-red-700 text-white",
+              else: "bg-indigo-600 hover:bg-indigo-700 text-white"
+              }
+              >
+              <%= if @panel_open do %>
+                <!-- Close (X) Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <% else %>
+                  <!-- Bug Icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <% end %>
+            </button>
+      </div>
+    </div>
+  </div>
+</div>
